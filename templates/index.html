@@ -1,88 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Zero To Hero</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #e0e0e0;
-        }
-        .container {
-            text-align: center;
-            padding: 2rem;
-            max-width: 640px;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(90deg, #00d2ff, #7b2ff7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .badge {
-            display: inline-block;
-            margin: 1rem 0 2rem;
-            padding: 0.4rem 1.2rem;
-            border: 1px solid #7b2ff7;
-            border-radius: 999px;
-            font-size: 0.9rem;
-            color: #c4b5fd;
-            letter-spacing: 0.05em;
-        }
-        .cards {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem 1.8rem;
-            min-width: 150px;
-            flex: 1;
-        }
-        .card span {
-            display: block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #9ca3af;
-            margin-bottom: 0.4rem;
-        }
-        .card strong {
-            font-size: 1.25rem;
-            color: #f9fafb;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>flask-docker-cicd</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e17;
+      --card: #0f1522;
+      --border: #1e2d45;
+      --blue: #3b82f6;
+      --cyan: #06b6d4;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* glow blob */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      width: 100%;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .dot.red   { background: #ef4444; }
+    .dot.yellow{ background: #eab308; }
+    .dot.green { background: #22c55e; }
+
+    .topbar-title {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* hero */
+    .hero { margin-bottom: 2rem; animation: fadeUp 0.7s 0.2s ease both; }
+
+    .tag {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--cyan);
+      border: 1px solid rgba(6,182,212,0.3);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    /* status badge */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 1.5rem 0 2rem;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+
+    .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0 rgba(34,197,94,0.6);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.6); }
+      70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+    }
+
+    .status-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--green);
+    }
+
+    /* cards grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(59,130,246,0.4);
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .card-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* pipeline steps */
+    .pipeline {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.7s 0.5s ease both;
+    }
+
+    .pipeline-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .step-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+
+    .step-circle.done    { background: rgba(34,197,94,0.15);  color: var(--green); border: 1px solid rgba(34,197,94,0.4); }
+    .step-circle.pending { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+    .step-info { flex: 1; }
+
+    .step-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 0.1rem;
+    }
+
+    .step-name.done    { color: var(--text); }
+    .step-name.pending { color: var(--muted); }
+
+    .step-desc {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .step-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .step-badge.done    { background: rgba(34,197,94,0.1);  color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .step-badge.pending { background: rgba(234,179,8,0.1);  color: var(--yellow); border: 1px solid rgba(234,179,8,0.2); }
+
+    /* tech stack */
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      animation: fadeUp 0.7s 0.6s ease both;
+      margin-bottom: 1.5rem;
+    }
+
+    .chip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.8rem;
+      border-radius: 6px;
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: var(--blue);
+    }
+
+    /* footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.7s 0.7s ease both;
+    }
+
+    .author {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .author span { color: var(--text); font-weight: 700; }
+
+    .gh-link {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .gh-link:hover { border-color: var(--blue); color: var(--blue); }
+
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      .footer { flex-direction: column; gap: 1rem; align-items: flex-start; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>DevOps Zero To Hero</h1>
-        <div class="badge">Josh Batch 10</div>
-        <div class="cards">
-            <div class="card">
-                <span>Framework</span>
-                <strong>Flask 3.1</strong>
-            </div>
-            <div class="card">
-                <span>Runtime</span>
-                <strong>Python 3.14</strong>
-            </div>
-            <div class="card">
-                <span>Deploy</span>
-                <strong>AWS ECS</strong>
-            </div>
-        </div>
+  <div class="container">
+
+    <div class="topbar">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+      <span class="topbar-title">flask-docker-cicd / main</span>
     </div>
+
+    <div class="hero">
+      <div class="tag">▶ CONTAINER RUNNING</div>
+      <h1>Flask App<br/><span>Docker + CI/CD</span></h1>
+      <p class="subtitle">Containerized with multi-stage Docker builds. Automated pipeline via GitHub Actions pushes to Docker Hub on every commit.</p>
+    </div>
+
+    <div class="status-row">
+      <div class="pulse-dot"></div>
+      <span class="status-text">App is live · Port 80 · 0.0.0.0</span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">🐳</div>
+        <div class="card-label">Base Image</div>
+        <div class="card-value">distroless/python3</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-label">Image Size</div>
+        <div class="card-value">~75 MB</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <div class="card-label">Build Strategy</div>
+        <div class="card-value">Multi-stage</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <div class="card-label">CI/CD</div>
+        <div class="card-value">GitHub Actions</div>
+      </div>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-title">// pipeline progress</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-circle done">✓</div>
+          <div class="step-info">
+            <div class="step-name done">Flask App Created</div>
+            <div class="step-desc">run.py · requirements.txt</div>
+          </div>
+          <div class="step-badge done">done</div>
+        </div>
+        <div class="step">
+          <div class="step-circle done">✓</div>
+          <div class="step-info">
+            <div class="step-name done">Dockerfile Written</div>
+            <div class="step-desc">multi-stage · distroless final</div>
+          </div>
+          <div class="step-badge done">done</div>
+        </div>
+        <div class="step">
+          <div class="step-circle done">✓</div>
+          <div class="step-info">
+            <div class="step-name done">Local Build & Run</div>
+            <div class="step-desc">docker build · docker run -p</div>
+          </div>
+          <div class="step-badge done">done</div>
+        </div>
+        <div class="step">
+          <div class="step-circle done">✓</div>
+          <div class="step-info">
+            <div class="step-name done">Pushed to GitHub</div>
+            <div class="step-desc">uttamtripathi-p/flask-docker-cicd</div>
+          </div>
+          <div class="step-badge done">done</div>
+        </div>
+        <div class="step">
+          <div class="step-circle pending">5</div>
+          <div class="step-info">
+            <div class="step-name pending">GitHub Actions Workflow</div>
+            <div class="step-desc">build-and-push.yml · secrets config</div>
+          </div>
+          <div class="step-badge pending">pending</div>
+        </div>
+        <div class="step">
+          <div class="step-circle pending">6</div>
+          <div class="step-info">
+            <div class="step-name pending">Docker Hub Push</div>
+            <div class="step-desc">automated on every git push</div>
+          </div>
+          <div class="step-badge pending">pending</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <span class="chip">Python 3.11</span>
+      <span class="chip">Flask</span>
+      <span class="chip">Docker</span>
+      <span class="chip">Distroless</span>
+      <span class="chip">GitHub Actions</span>
+      <span class="chip">Docker Hub</span>
+      <span class="chip">Bash</span>
+    </div>
+
+    <div class="footer">
+      <div class="author">built by <span>Uttam Tripathi</span></div>
+      <a class="gh-link" href="https://github.com/uttamtripathi-p/flask-docker-cicd" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        view repo
+      </a>
+    </div>
+
+  </div>
 </body>
 </html>
