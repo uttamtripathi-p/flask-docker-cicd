@@ -56,8 +56,8 @@ docker pull uttamtripathi/flask-app:latest
 | Flask app + Dockerfile | ✅ |
 | Local build & run | ✅ |
 | Pushed to GitHub | ✅ |
-| GitHub Actions pipeline | ⏳ |
-| Docker Hub push working | ⏳ |
+| GitHub Actions pipeline | ✅ |
+| Docker Hub push working | ✅ |
 
 ---
 
