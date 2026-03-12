@@ -1,4 +1,4 @@
-# Base image (OS)
+# Base imag)
 
 FROM python:3.14-slim AS builder
 
